@@ -154,28 +154,69 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-hexo多电脑同步方法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/10/hello-world/">Hello World</a>
+      <a class="article-title" href="/2017/08/11/hexo多电脑同步方法/">hexo多电脑同步方法</a>
     </h1>
   
 
         
-        <a href="/2017/08/10/hello-world/" class="archive-article-date">
-  	<time datetime="2017-08-10T10:43:49.047Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-10</time>
+        <a href="/2017/08/11/hexo多电脑同步方法/" class="archive-article-date">
+  	<time datetime="2017-08-11T05:55:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-11</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        
-<p>&lt;%- post.title %&gt;</p>
+        <div hidden>每一行的长度最好不要超过100</div>
+
+<p>经常我们有一个场景：需要在公司或者家庭多个电脑完成Hexo的博客撰写和发布工作。这就涉及到Hexo多电脑的<br>同步问题。</p>
+<p>网上的方案基本上都是多分支方案。也即，在同一个仓库创建两个分支：</p>
+<ul>
+<li>Hexo分支 – 用来保存所有Hexo的源文件</li>
+<li>master分支 – 用来保存Hexo生成的博客文件</li>
+</ul>
+<p>在创建GitHub Pages或者Coding Pages时，以master分支为pages分支。<br>Hexo的deploy指向master分支部署pages，git的管理指向Hexo分支。</p>
+<p>但是这里有一个巨大的问题，就是多分支的方案一定是让完整的Hexo源文件暴露在公开的仓库了。这对一些Hexo<br>博客采用的leancloud阅读次数管理、多说评论等服务的私有secret key也暴露在公开仓库分支了。如果对这些配<br>置的_config.yml进行单独管理的话，又不能在另一台电脑直接git pull同步，非常的麻烦。</p>
+<p>所以Hexo最完美的多电脑同步方法是，创建两个仓库：</p>
+<ul>
+<li>Hexo私有仓库 – 用来保存所有Hexo的源文件</li>
+<li>master公开仓库 – 用来保存Hexo生成的博客文件</li>
+</ul>
+<p>下面来具体讲讲实现方法。</p>
+<h3 id="基础假设"><a href="#基础假设" class="headerlink" title="基础假设"></a>基础假设</h3><p>这里假设读者已经建立起了Hexo的博客系统了，实现了比方说：</p>
+<ul>
+<li>利用hexo d 直接deploy Hexo博客</li>
+<li>实现了Hexo的GitHub和Coding国外和国内的同时发布</li>
+<li>自行定义了例如next的第三方主题</li>
+</ul>
+<h4 id="Let’go"><a href="#Let’go" class="headerlink" title="Let’go!"></a>Let’go!</h4><p>创建私有仓库</p>
+<p>注册一个Coding账号，然后创建一个私有项目，名称为Hexo-my</p>
+<h3 id="建立本地git仓库"><a href="#建立本地git仓库" class="headerlink" title="建立本地git仓库"></a>建立本地git仓库</h3><p>进入你现有的Hexo文件夹，删除第三方主题的git配置，如对next主题<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rm -fr ./themes/next/.git/</div></pre></td></tr></table></figure></p>
+<h3 id="然后建立本地的git仓库"><a href="#然后建立本地的git仓库" class="headerlink" title="然后建立本地的git仓库"></a>然后建立本地的git仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git init</div></pre></td></tr></table></figure>
+<p>创建一个.gitignore文件，并放在Hexo的根目录，内容为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">.DS_Store</div><div class="line">Thumbs.db</div><div class="line">db.json</div><div class="line">*.log</div><div class="line">node_modules/</div><div class="line">public/</div><div class="line">.deploy*/</div></pre></td></tr></table></figure>
+<h3 id="push到私有仓库"><a href="#push到私有仓库" class="headerlink" title="push到私有仓库"></a>push到私有仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">git remote add origin https://git.coding.net/&lt;yourname&gt;/Hexo-my.git</div><div class="line">git add .</div><div class="line">git commit -m <span class="string">"my first private hexo"</span></div><div class="line">git push -u origin master</div></pre></td></tr></table></figure>
+<p>至此，就完成了本地Hexo源码的全备份</p>
+<h3 id="在另一台电脑进行Hexo写作"><a href="#在另一台电脑进行Hexo写作" class="headerlink" title="在另一台电脑进行Hexo写作"></a>在另一台电脑进行Hexo写作</h3><p>上面已经完成了Hexo的全备份，那么如果在另一台电脑进行Hexo编辑呢。<br>当然首先你也要完成node/npm/hexo/git等环境的搭建和配置。</p>
+<h3 id="Hexo拉取"><a href="#Hexo拉取" class="headerlink" title="Hexo拉取"></a>Hexo拉取</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git <span class="built_in">clone</span> https://git.coding.net/&lt;yourname&gt;/Hexo-my.git</div><div class="line">这样你就拥有了你的所有Hexo源文件</div></pre></td></tr></table></figure>
+<h3 id="Hexo编写和发布"><a href="#Hexo编写和发布" class="headerlink" title="Hexo编写和发布"></a>Hexo编写和发布</h3><p>尽管拉取下来了，还需要建立一下Hexo的环境，这里需要格外注意的一点是：<br>千万不要用hexo init命令。原因是当前目录已经建立了git仓库环境, hexo init会覆盖到当前的git环境，重建一<br>个新的，这样和我们的私有Hexo源码仓库脱离了联系。</p>
+<p>正确的做法是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install</div></pre></td></tr></table></figure>
+<p>因为package.json里面已经保存了hexo的必备资源包信息，npm install后Hexo环境就建立起来了。</p>
+<p>接下来就进行正常的编写和发布就好。<br>本地预览的命令还是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hexo g</div><div class="line">hexo s</div><div class="line">Hexo的发布命令是hexo d。</div></pre></td></tr></table></figure>
+<p>最后执行<code>git status</code>把更改的新文件<code>git add</code>和<code>git commit</code>，最后<code>git push</code>到私有仓库，又会完成Hexo源<br>码仓库的同步。</p>
+<h3 id="Hexo仓库更新"><a href="#Hexo仓库更新" class="headerlink" title="Hexo仓库更新"></a>Hexo仓库更新</h3><p>下次进行Hexo仓库拉取时执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git fetch --all <span class="comment">#将git上所有文件拉取到本地</span></div><div class="line">git reset --hard origin/master  <span class="comment">#强制将本地内容指向刚刚同步git云端内容</span></div></pre></td></tr></table></figure>
+<p>reset 对所拉取的文件不做任何处理，此处不用 pull 是因为本地尚有许多文件，使用 pull 会有一些版本冲突<br>，解决起来也麻烦，而本地的文件都是初始化生成的文件，较拉取的库里面的文件而言基本无用，所以直接丢弃。</p>
+<p>END<br>从此，世界是如此的美好。</p>
 
       
 
@@ -188,69 +229,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/10/hello-world/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-我的第一篇文章" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/10/我的第一篇文章/">我的第一篇文章</a>
-    </h1>
-  
-
-        
-        <a href="/2017/08/10/我的第一篇文章/" class="archive-article-date">
-  	<time datetime="2017-08-10T09:52:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/10/我的第一篇文章/">展开全文 >></a>
+          <a class="article-more-a" href="/2017/08/11/hexo多电脑同步方法/">展开全文 >></a>
         </p>
       
 
